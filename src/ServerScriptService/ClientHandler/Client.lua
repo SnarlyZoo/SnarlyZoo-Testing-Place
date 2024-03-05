@@ -24,15 +24,17 @@ function Client.new(player: Player): self
     return self
 end
 function Client.Destroy(self: self): nil
-
+    self:ChangeUserType(nil)
 end
 
-function Client.ChangeUserType(self: self, userType: UserType): nil
+function Client.ChangeUserType(self: self, userType: UserType?): nil
     if self._user then
         self._user:Destroy()
     end
 
-    self._user = require(Users:FindFirstChild(userType .. "User")).new(self.Player)
+    if userType then
+        self._user = require(Users:FindFirstChild(userType .. "User")).new(self.Player)
+    end
 end
 function Client.GetUserType(self: self): UserType
     return self._user.UserType

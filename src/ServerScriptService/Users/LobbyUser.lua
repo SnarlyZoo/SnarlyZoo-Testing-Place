@@ -2,6 +2,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(ReplicatedStorage.Types)
 
+local Remotes = ReplicatedStorage.Remotes
+
 local LobbyUser = {}
 LobbyUser.__index = LobbyUser
 
@@ -63,14 +65,18 @@ function LobbyUser.Spawn(self: self, cframe: CFrame?): nil
     self._humanoid = humanoid
 
     self._isAlive = true
+
+    Remotes.SetController:FireClient(self._player, "Test", character)
 end
 
 function LobbyUser._onCharacterRemoving(self: self, character: Model): nil
-    if self._isAlive then
-        self:_onDied()
-    end
+    if character == self._character then
+        if self._isAlive then
+            self:_onDied()
+        end
 
-    self._character = nil
+        self._character = nil
+    end
 end
 function LobbyUser._onDied(self: self): nil
     self._isAlive = false

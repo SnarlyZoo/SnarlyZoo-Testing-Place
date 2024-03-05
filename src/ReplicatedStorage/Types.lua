@@ -24,4 +24,19 @@ export type LobbyUser = {
 export type User = LobbyUser
 export type UserType = "Lobby"
 
+export type PlayerModule = {
+    Player: Player,
+
+    ChangeControllerType: (controllerType: ControllerType) -> nil,
+    GetControllerType: () -> ControllerType,
+}
+
+export type TestController = {
+    ControllerType: "Test",
+
+    Destroy: () -> nil,
+}
+export type Controller = TestController
+export type ControllerType = "Test"
+
 return Types

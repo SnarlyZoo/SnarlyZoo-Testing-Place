@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "**/StarterCharacterScripts/Animate.client.lua": true,
+        "**/StarterCharacterScripts/Health.server.lua": true,
+        "**/StarterPlayerScripts/PlayerScriptsLoader.client.lua": true,
+        "**/StarterPlayerScripts/RbxCharacterSounds.client.lua": true,
+    }
+}
