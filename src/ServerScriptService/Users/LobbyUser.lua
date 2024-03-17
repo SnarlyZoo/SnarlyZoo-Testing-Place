@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
-local Types = require(ReplicatedStorage.Types)
+local Types = require(ServerScriptService.Types)
 
 local Remotes = ReplicatedStorage.Remotes
 

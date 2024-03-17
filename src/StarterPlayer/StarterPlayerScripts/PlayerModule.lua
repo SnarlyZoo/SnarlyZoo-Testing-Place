@@ -1,9 +1,12 @@
 local Players = game:GetService("Players")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Types = require(ReplicatedStorage.Types)
+local Types = require(ReplicatedFirst.Types)
 type Controller = Types.Controller
 type ControllerType = Types.ControllerType
+
+local InputService = require(ReplicatedStorage.InputService)
 
 local Controllers = ReplicatedStorage.Controllers
 
@@ -18,6 +21,8 @@ function PlayerModule.new(): self
     local self = setmetatable({}, PlayerModule) :: self
 
     self.Player = Players.LocalPlayer
+
+    InputService:ChangeInputType("Keyboard")
 
     return self
 end

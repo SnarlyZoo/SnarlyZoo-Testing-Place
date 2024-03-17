@@ -1,6 +1,7 @@
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Types = require(ReplicatedStorage.Types)
+local Types = require(ReplicatedFirst.Types)
 type ControllerType = Types.ControllerType
 
 local PlayerModule = require(script.Parent:WaitForChild("PlayerModule"))
