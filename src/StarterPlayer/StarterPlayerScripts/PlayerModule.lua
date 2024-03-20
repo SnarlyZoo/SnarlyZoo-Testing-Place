@@ -1,41 +1,33 @@
-local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Types = require(ReplicatedFirst.Types)
-type Controller = Types.Controller
-type ControllerType = Types.ControllerType
+local Types = ReplicatedFirst.Types
+type Character = Types.Character
 
-local InputService = require(ReplicatedStorage.InputService)
-
-local Controllers = ReplicatedStorage.Controllers
+local Characters = ReplicatedStorage.Characters
 
 local PlayerModule = {}
 PlayerModule.__index = PlayerModule
 
 type self = Types.PlayerModule & {
-    _controller: Controller,
+    _character: Character,
 }
 
 function PlayerModule.new(): self
     local self = setmetatable({}, PlayerModule) :: self
 
-    self.Player = Players.LocalPlayer
-
-    InputService:ChangeInputType("Keyboard")
-
     return self
 end
 
-function PlayerModule.ChangeControllerType(self: self, controllerType: ControllerType, ...): nil
-    if self._controller then
-        self._controller:Destroy()
+function PlayerModule.GetCharacter(self: self): Character
+    return self._character
+end
+function PlayerModule.LoadCharacter(self: self, characterType: string, character: Model): nil
+    if self._character then
+        self._character:Destroy()
     end
 
-    self._controller = require(Controllers:FindFirstChild(controllerType .. "Controller")).new(...)
-end
-function PlayerModule.GetControllerType(self: self): ControllerType
-    return self._controller.ControllerType
+    self._character = require(Characters:FindFirstChild(characterType .. "Character")).new(character)
 end
 
 return PlayerModule.new()

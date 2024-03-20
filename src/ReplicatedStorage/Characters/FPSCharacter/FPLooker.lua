@@ -1,30 +1,36 @@
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
-local Types = require(ReplicatedFirst.Types)
+local Types = ReplicatedFirst.Types
 
-local TestLooker = {}
-TestLooker.__index = TestLooker
+local InputService = require(ReplicatedStorage.InputService)
 
-type self = Types.TestLooker & {
+local FPLooker = {}
+FPLooker.__index = FPLooker
+
+type self = Types.FPLooker & {
     _camera: Camera,
+
     _humanoid: Humanoid,
+    _character: Model,
 
     _angles: {
         X: number,
         Y: number,
     },
 
-    _Update: () -> nil,
+    _connection: RBXScriptConnection,
+
+    _Update: (self) -> nil,
 }
 
 local FIELD_OF_VIEW = 90
 local CAMERA_OFFSET = Vector3.new(0, 1.5, 0)
 
 local MAX_ANGLE = math.rad(89)
-local MOUSE_SENSITIVITY = Vector2.new(1, 0.77)*math.rad(0.5)
 
 local function SetLocalTransparency(instance: Instance, value: number): nil
     if instance:IsA("BasePart") or instance:IsA("Decal") then
@@ -32,8 +38,8 @@ local function SetLocalTransparency(instance: Instance, value: number): nil
     end
 end
 
-function TestLooker.new(humaniod: Humanoid): self
-    local self = setmetatable({}, TestLooker) :: self
+function FPLooker.new(humaniod: Humanoid): self
+    local self = setmetatable({}, FPLooker) :: self
 
     self._camera = Workspace.CurrentCamera
     self._humanoid = humaniod
@@ -54,14 +60,14 @@ function TestLooker.new(humaniod: Humanoid): self
         SetLocalTransparency(descendant, 1)
     end)
 
-    RunService:BindToRenderStep("TestLooker", Enum.RenderPriority.Camera.Value, function()
+    RunService:BindToRenderStep("FPLooker", Enum.RenderPriority.Camera.Value, function()
         self:_Update()
     end)
 
     return self
 end
-function TestLooker.Destroy(self: self): nil
-    RunService:UnbindFromRenderStep("TestLooker")
+function FPLooker.Destroy(self: self): nil
+    RunService:UnbindFromRenderStep("FPLooker")
 
     self.connection:Disconnect()
     for _, descendant in ipairs(self._character:GetDescendants()) do
@@ -69,15 +75,13 @@ function TestLooker.Destroy(self: self): nil
     end
 end
 
-function TestLooker.ProcessDelta(self: self, delta: Vector3): nil
-    self._angles.X = (self._angles.X - delta.X * MOUSE_SENSITIVITY.X) % (2*math.pi)
-    self._angles.Y = math.clamp(self._angles.Y - delta.Y * MOUSE_SENSITIVITY.Y, -MAX_ANGLE, MAX_ANGLE)
-end
-
-function TestLooker._Update(self: self): nil
+function FPLooker._Update(self: self)
     if not UserInputService:GetFocusedTextBox() then
         UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
         UserInputService.MouseIconEnabled = false
+
+        self._angles.X = (self._angles.X - InputService:GetAxis("LookHorizontal")) % (2*math.pi)
+        self._angles.Y = math.clamp(self._angles.Y - InputService:GetAxis("LookVertical"), -MAX_ANGLE, MAX_ANGLE)
 
         local rotCFrame = CFrame.Angles(0, self._angles.X, 0) * CFrame.Angles(self._angles.Y, 0, 0)
         self._camera.CFrame = CFrame.new(self._humanoid.RootPart.Position + self._humanoid.CameraOffset) * rotCFrame
@@ -88,4 +92,4 @@ function TestLooker._Update(self: self): nil
     end
 end
 
-return TestLooker
+return FPLooker

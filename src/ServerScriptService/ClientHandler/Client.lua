@@ -1,42 +1,42 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Workspace = game:GetService("Workspace")
 
-local Types = require(ServerScriptService.Types)
-type User = Types.User
-type UserType = Types.UserType
+local Types = ServerScriptService.Types
 
-local Users = ServerScriptService.Users
+local Characters = ReplicatedStorage.Characters
+local Remotes = ReplicatedStorage.Remotes
 
 local Client = {}
 Client.__index = Client
 
 type self = Types.Client & {
-    _user: User,
+    _player: Player,
 }
 
 function Client.new(player: Player): self
     local self = setmetatable({}, Client) :: self
 
-    self.Player = player
-
-    self:ChangeUserType("Lobby")
+    self._player = player
 
     return self
 end
 function Client.Destroy(self: self): nil
-    self:ChangeUserType(nil)
+
 end
 
-function Client.ChangeUserType(self: self, userType: UserType?): nil
-    if self._user then
-        self._user:Destroy()
-    end
+function Client.SpawnCharacter(self: self, characterType: string): nil
+    self._player:LoadCharacter()
 
-    if userType then
-        self._user = require(Users:FindFirstChild(userType .. "User")).new(self.Player)
-    end
-end
-function Client.GetUserType(self: self): UserType
-    return self._user.UserType
+    local character = self._player.Character
+    character.PrimaryPart = character:WaitForChild("HumanoidRootPart")
+
+    repeat
+        task.wait()
+    until character:IsDescendantOf(Workspace)
+
+    require(Characters:FindFirstChild(characterType .. "Character")).Setup(self._player, character)
+    Remotes.LoadCharacter:FireClient(self._player, characterType, character)
 end
 
 return Client

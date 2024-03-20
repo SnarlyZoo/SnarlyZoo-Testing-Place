@@ -1,13 +1,8 @@
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Types = require(ReplicatedFirst.Types)
-type ControllerType = Types.ControllerType
-
-local PlayerModule = require(script.Parent:WaitForChild("PlayerModule"))
+local PlayerModule = require(script.Parent.PlayerModule)
 
 local Remotes = ReplicatedStorage.Remotes
-
-Remotes.SetController.OnClientEvent:Connect(function(controllerType: ControllerType, ...)
-    PlayerModule:ChangeControllerType(controllerType, ...)
+Remotes.LoadCharacter.OnClientEvent:Connect(function(characterType: string, character: Model)
+    PlayerModule:LoadCharacter(characterType, character)
 end)
