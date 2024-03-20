@@ -1,14 +1,17 @@
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Types = ReplicatedFirst.Types
 
-local FirstPersonCamera = {}
-FirstPersonCamera.__index = FirstPersonCamera
+local InputService = require(ReplicatedStorage.InputService)
 
-type self = Types.FirstPersonCamera & {
+local FPLooker = {}
+FPLooker.__index = FPLooker
+
+type self = Types.FPLooker & {
     _camera: Camera,
 
     _humanoid: Humanoid,
@@ -35,8 +38,8 @@ local function SetLocalTransparency(instance: Instance, value: number): nil
     end
 end
 
-function FirstPersonCamera.new(humaniod: Humanoid): self
-    local self = setmetatable({}, FirstPersonCamera) :: self
+function FPLooker.new(humaniod: Humanoid): self
+    local self = setmetatable({}, FPLooker) :: self
 
     self._camera = Workspace.CurrentCamera
     self._humanoid = humaniod
@@ -57,14 +60,14 @@ function FirstPersonCamera.new(humaniod: Humanoid): self
         SetLocalTransparency(descendant, 1)
     end)
 
-    RunService:BindToRenderStep("FirstPersonCamera", Enum.RenderPriority.Camera.Value, function()
+    RunService:BindToRenderStep("FPLooker", Enum.RenderPriority.Camera.Value, function()
         self:_Update()
     end)
 
     return self
 end
-function FirstPersonCamera.Destroy(self: self): nil
-    RunService:UnbindFromRenderStep("FirstPersonCamera")
+function FPLooker.Destroy(self: self): nil
+    RunService:UnbindFromRenderStep("FPLooker")
 
     self.connection:Disconnect()
     for _, descendant in ipairs(self._character:GetDescendants()) do
@@ -72,15 +75,13 @@ function FirstPersonCamera.Destroy(self: self): nil
     end
 end
 
-function FirstPersonCamera.Look(self: self, lookVector: Vector2): nil
-    self._angles.X = (self._angles.X - lookVector.X) % (2*math.pi)
-    self._angles.Y = math.clamp(self._angles.Y - lookVector.Y, -MAX_ANGLE, MAX_ANGLE)
-end
-
-function FirstPersonCamera._Update(self: self)
+function FPLooker._Update(self: self)
     if not UserInputService:GetFocusedTextBox() then
         UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
         UserInputService.MouseIconEnabled = false
+
+        self._angles.X = (self._angles.X - InputService:GetAxis("LookHorizontal")) % (2*math.pi)
+        self._angles.Y = math.clamp(self._angles.Y - InputService:GetAxis("LookVertical"), -MAX_ANGLE, MAX_ANGLE)
 
         local rotCFrame = CFrame.Angles(0, self._angles.X, 0) * CFrame.Angles(self._angles.Y, 0, 0)
         self._camera.CFrame = CFrame.new(self._humanoid.RootPart.Position + self._humanoid.CameraOffset) * rotCFrame
@@ -91,4 +92,4 @@ function FirstPersonCamera._Update(self: self)
     end
 end
 
-return FirstPersonCamera
+return FPLooker

@@ -6,18 +6,23 @@ export type InputService = {
 }
 
 export type PlayerModule = {
-    GetController: (nil) -> CharacterController,
+    GetCharacter: (nil) -> Character,
+    LoadCharacter: (nil, characterType: string, character: Model) -> nil,
 }
 
-export type FirstPersonCamera = {
+export type Character = {
     Destroy: (nil) -> nil,
 
-    Look: (nil, lookVector: Vector2) -> nil,
+    Setup: (player: Player, character: Model) -> nil,
+}
+export type FPSCharacter = Character
+
+export type FPLooker = {
+    Destroy: (nil) -> nil,
 }
 
-export type CharacterController = {
+export type PhysicsMover = {
     Destroy: (nil) -> nil,
 
-    Move: (nil, moveDirection: Vector3, relativeToCamera: boolean?) -> nil,
-    QueueJump: (nil, toJump: boolean) -> nil,
+    Setup: (character: Model) -> nil,
 }
