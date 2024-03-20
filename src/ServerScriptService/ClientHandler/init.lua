@@ -12,6 +12,8 @@ ClientHandler.__index = ClientHandler
 type self = Types.ClientHandler & {
     _clients: {Client},
 
+    _clientAddedEvent: BindableEvent,
+
     _onPlayerAdded: (self, player: Player) -> nil,
     _onPlayerRemoving: (self, player: Player) -> nil,
 }
@@ -22,6 +24,9 @@ function ClientHandler.new(): self
     local self = setmetatable({}, ClientHandler) :: self
 
     self._clients = {}
+
+    self._clientAddedEvent = Instance.new("BindableEvent")
+    self.ClientAdded = self._clientAddedEvent.Event
 
     Players.PlayerAdded:Connect(function(player: Player)
         self:_onPlayerAdded(player)
@@ -38,7 +43,9 @@ function ClientHandler.GetClients(self: self): {Client}
 end
 
 function ClientHandler._onPlayerAdded(self: self, player: Player): nil
-    table.insert(self._clients, Client.new(player))
+    local client = Client.new(player)
+    table.insert(self._clients, client)
+    self._clientAddedEvent:Fire(client)
 end
 function ClientHandler._onPlayerRemoving(self: self, player: Player): nil
     for index, client in ipairs(self._clients) do
