@@ -1,17 +1,22 @@
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local Types = ReplicatedFirst.Types
+local Types = ReplicatedStorage.Types
 
-local InputService = {}
+local Signal = require(ReplicatedStorage.Signal)
+
+local InputService = {
+    ActionChanged = Signal.new(),
+
+    _actions = {},
+    _axes = {},
+}
 InputService.__index = InputService
 
 type self = Types.InputService & {
     _actions: { [string]: boolean },
     _axes: { [string]: number },
-
-    _actionChangedEvent: BindableEvent,
 
     _onInputBegan: (self, input: InputObject, gameProcessedEvent: boolean) -> nil,
     _onInputEnded: (self, input: InputObject, gameProcessedEvent: boolean) -> nil,
@@ -62,17 +67,12 @@ local MOUSE_SENSITIVITY = Vector2.new(1, 0.77)*math.rad(0.5)
 function InputService.new(): self
     local self = setmetatable({}, InputService) :: self
 
-    self._actions = {}
     for _, actionName in ipairs(ACTIONS) do
         self._actions[actionName] = false
     end
-    self._axes = {}
     for _, axisName in ipairs(AXES) do
         self._axes[axisName] = 0
     end
-
-    self._actionChangedEvent = Instance.new("BindableEvent")
-    self.ActionChanged = self._actionChangedEvent.Event
 
     UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
         self:_onInputBegan(input, gameProcessedEvent)
@@ -101,7 +101,7 @@ function InputService._onInputBegan(self: self, input: InputObject, gameProcesse
         if actionName then
             if self._actions[actionName] ~= nil then
                 self._actions[actionName] = true
-                self._actionChangedEvent:Fire(actionName, true)
+                self.ActionChanged:Fire(actionName, true)
             end
 
             local axisControl = AXES_CONTROLS[actionName]
@@ -117,7 +117,7 @@ function InputService._onInputEnded(self: self, input: InputObject, gameProcesse
         if actionName then
             if self._actions[actionName] then
                 self._actions[actionName] = false
-                self._actionChangedEvent:Fire(actionName, false)
+                self.ActionChanged:Fire(actionName, false)
             end
 
             local axisControl = AXES_CONTROLS[actionName]

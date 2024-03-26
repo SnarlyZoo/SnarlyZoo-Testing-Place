@@ -1,17 +1,16 @@
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
-local Types = ReplicatedFirst.Types
+local Types = ReplicatedStorage.Types
 
 local InputService = require(ReplicatedStorage.InputService)
 
 local FPLooker = {}
 FPLooker.__index = FPLooker
 
-type self = Types.FPLooker & {
+type self = Types.Looker & {
     _camera: Camera,
 
     _humanoid: Humanoid,
@@ -38,12 +37,14 @@ local function SetLocalTransparency(instance: Instance, value: number): nil
     end
 end
 
-function FPLooker.new(humaniod: Humanoid): self
+function FPLooker.new(humanoid: Humanoid): self
     local self = setmetatable({}, FPLooker) :: self
 
+    self.Enabled = true
+
     self._camera = Workspace.CurrentCamera
-    self._humanoid = humaniod
-    self._character = humaniod.Parent
+    self._humanoid = humanoid
+    self._character = humanoid.Parent
 
     self._angles = {
         X = 0,
@@ -61,7 +62,9 @@ function FPLooker.new(humaniod: Humanoid): self
     end)
 
     RunService:BindToRenderStep("FPLooker", Enum.RenderPriority.Camera.Value, function()
-        self:_Update()
+        if self.Enabled then
+            self:_Update()
+        end
     end)
 
     return self

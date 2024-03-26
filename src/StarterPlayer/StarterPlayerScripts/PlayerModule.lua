@@ -1,7 +1,6 @@
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Types = ReplicatedFirst.Types
+local Types = ReplicatedStorage.Types
 type Character = Types.Character
 
 local Characters = ReplicatedStorage.Characters
